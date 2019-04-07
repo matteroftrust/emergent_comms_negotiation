@@ -41,6 +41,7 @@ def run(hostname, logfile, **kwargs):
         print(logfile)
     plot_graphs.plot_reward(logfile=logfile, **kwargs)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--hostname', type=str, help='should be in hosts.yaml', required=True)

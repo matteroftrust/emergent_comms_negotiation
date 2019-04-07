@@ -146,14 +146,14 @@ def run_episode(
             # we do need to blank this one though :)
             _prev_proposal = type_constr.LongTensor(sieve.batch_size, 3).fill_(0)
         nodes, term_a, s.m_prev, this_proposal, _entropy_loss, \
-                _term_matches_argmax_count, _utt_matches_argmax_count, _utt_stochastic_draws, \
-                _prop_matches_argmax_count, _prop_stochastic_draws = agent_model(
-            pool=Variable(s.pool),
-            utility=Variable(s.utilities[:, agent]),
-            m_prev=Variable(s.m_prev),
-            prev_proposal=Variable(_prev_proposal),
-            testing=testing
-        )
+            _term_matches_argmax_count, _utt_matches_argmax_count, _utt_stochastic_draws, \
+            _prop_matches_argmax_count, _prop_stochastic_draws = agent_model(
+                pool=Variable(s.pool),
+                utility=Variable(s.utilities[:, agent]),
+                m_prev=Variable(s.m_prev),
+                prev_proposal=Variable(_prev_proposal),
+                testing=testing
+            )
         entropy_loss_by_agent[agent] += _entropy_loss
         actions_by_timestep.append(nodes)
         term_matches_argmax_count += _term_matches_argmax_count
@@ -282,17 +282,17 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
         # render = True
         batch = sampling.generate_training_batch(batch_size=batch_size, test_hashes=test_hashes, random_state=train_r)
         actions, rewards, steps, alive_masks, entropy_loss_by_agent, \
-                _term_matches_argmax_count, _num_policy_runs, _utt_matches_argmax_count, _utt_stochastic_draws, \
-                _prop_matches_argmax_count, _prop_stochastic_draws = run_episode(
-            batch=batch,
-            enable_cuda=enable_cuda,
-            enable_comms=enable_comms,
-            enable_proposal=enable_proposal,
-            agent_models=agent_models,
-            prosocial=prosocial,
-            # batch_size=batch_size,
-            render=render,
-            testing=testing)
+            _term_matches_argmax_count, _num_policy_runs, _utt_matches_argmax_count, _utt_stochastic_draws, \
+            _prop_matches_argmax_count, _prop_stochastic_draws = run_episode(
+                batch=batch,
+                enable_cuda=enable_cuda,
+                enable_comms=enable_comms,
+                enable_proposal=enable_proposal,
+                agent_models=agent_models,
+                prosocial=prosocial,
+                # batch_size=batch_size,
+                render=render,
+                testing=testing)
         term_matches_argmax_count += _term_matches_argmax_count
         utt_matches_argmax_count += _utt_matches_argmax_count
         utt_stochastic_draws += _utt_stochastic_draws
@@ -339,16 +339,16 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
             test_rewards_sum = 0
             for test_batch in test_batches:
                 actions, test_rewards, steps, alive_masks, entropy_loss_by_agent, \
-                        _term_matches_argmax_count, _num_policy_runs, _utt_matches_argmax_count, _utt_stochastic_draws, \
-                        _prop_matches_argmax_count, _prop_stochastic_draws = run_episode(
-                    batch=test_batch,
-                    enable_cuda=enable_cuda,
-                    enable_comms=enable_comms,
-                    enable_proposal=enable_proposal,
-                    agent_models=agent_models,
-                    prosocial=prosocial,
-                    render=True,
-                    testing=True)
+                    _term_matches_argmax_count, _num_policy_runs, _utt_matches_argmax_count, _utt_stochastic_draws, \
+                    _prop_matches_argmax_count, _prop_stochastic_draws = run_episode(
+                        batch=test_batch,
+                        enable_cuda=enable_cuda,
+                        enable_comms=enable_comms,
+                        enable_proposal=enable_proposal,
+                        agent_models=agent_models,
+                        prosocial=prosocial,
+                        render=True,
+                        testing=True)
                 test_rewards_sum += test_rewards[:, 2].mean()
             print('test reward=%.3f' % (test_rewards_sum / len(test_batches)))
 
