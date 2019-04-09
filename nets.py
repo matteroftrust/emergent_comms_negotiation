@@ -98,11 +98,12 @@ class UtterancePolicy(nn.Module):
         last_token = type_constr.LongTensor(batch_size).fill_(0)
         utterance_nodes = []
         type_constr = torch.cuda if h_t.is_cuda else torch
-        utterance = type_constr.LongTensor(batch_size, self.max_len).fill_(0)
+        utterance = type_constr.LongTensor(batch_size, self.max_len).fill_(0) # here is a new message
         entropy = 0
         matches_argmax_count = 0
         stochastic_draws_count = 0
         for i in range(self.max_len):
+            # in each step we create new message 'letter'
             embedded = self.embedding(Variable(last_token))
             h, c = self.lstm(embedded, (h, c))
             logits = self.h1(h)
@@ -183,7 +184,7 @@ class ProposalPolicy(nn.Module):
         return nodes, proposal, entropy, matches_argmax_count, stochastic_draws
 
 
-class AgentModel(nn.Module):
+class AgentModel(nn.Module):  # inherits from a base neural network class in torch
     def __init__(
             self, enable_comms, enable_proposal,
             term_entropy_reg,
@@ -209,6 +210,7 @@ class AgentModel(nn.Module):
         self.proposal_policy = ProposalPolicy()
 
     def forward(self, pool, utility, m_prev, prev_proposal, testing):
+        # Defines the computation performed at every call. this is where everything is being computed
         """
         setting testing to True disables stochasticity: always picks the argmax
         cannot use this when training

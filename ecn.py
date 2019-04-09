@@ -63,6 +63,7 @@ def load_model(model_file, agent_models, agent_opts):
 
 
 class State(object):
+    # it seems that it is a current state of negotiations
     def __init__(self, N, pool, utilities):
         batch_size = N.size()[0]
         self.N = N
@@ -130,7 +131,7 @@ def run_episode(
     ]
     if render:
         print('  ')
-    for t in range(10):
+    for t in range(10):  # is it always 10 steps?
         agent = t % 2
 
         agent_model = agent_models[agent]
@@ -147,7 +148,7 @@ def run_episode(
             _prev_proposal = type_constr.LongTensor(sieve.batch_size, 3).fill_(0)
         nodes, term_a, s.m_prev, this_proposal, _entropy_loss, \
             _term_matches_argmax_count, _utt_matches_argmax_count, _utt_stochastic_draws, \
-            _prop_matches_argmax_count, _prop_stochastic_draws = agent_model(
+            _prop_matches_argmax_count, _prop_stochastic_draws = agent_model(  # this calls forward method
                 pool=Variable(s.pool),
                 utility=Variable(s.utilities[:, agent]),
                 m_prev=Variable(s.m_prev),
@@ -243,7 +244,13 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
         if enable_cuda:
             model = model.cuda()
         agent_models.append(model)
-        agent_opts.append(optim.Adam(params=agent_models[i].parameters()))
+        # print('PARAMETERS FOR MODEL:')
+        # print(agent_models[i].parameters()) parameters() contains 30 different parameters that are mostly vectors and matricies
+        # about parameters and tensors: https://stackoverflow.com/questions/50935345/understanding-torch-nn-parameter
+        for i, p in enumerate(agent_models[i].parameters()):
+            print('parameter {}: {}'.format(i, p.size()))
+        agent_opts.append(optim.Adam(params=agent_models[i].parameters())) # optimizers for agents
+        # Adam stochastic optimizer https://arxiv.org/abs/1412.6980
     if path.isfile(model_file) and not no_load:
         episode, start_time = load_model(
             model_file=model_file,
@@ -256,7 +263,7 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
         print('')
         return
     last_print = time.time()
-    rewards_sum = type_constr.FloatTensor(3).fill_(0)
+    rewards_sum = type_constr.FloatTensor(3).fill_(0)  # just a vector
     steps_sum = 0
     count_sum = 0
     for d in ['logs', 'model_saves']:
@@ -300,6 +307,7 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
         prop_matches_argmax_count += _prop_matches_argmax_count
         prop_stochastic_draws += _prop_stochastic_draws
 
+        # here starts learning i guess
         if not testing:
             for i in range(2):
                 agent_opts[i].zero_grad()
