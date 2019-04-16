@@ -218,12 +218,16 @@ class AgentModel(nn.Module):  # inherits from a base neural network class in tor
         batch_size = pool.size()[0]
         context = torch.cat([pool, utility], 1)
         c_h = self.context_net(context)
+        print('CONTEXT net: gets {} returns {}'.format(context, c_h))
         type_constr = torch.cuda if context.is_cuda else torch
         if self.enable_comms:
             m_h = self.utterance_net(m_prev)
+            print('UTTERANCE net: gets {} returns {}'.format(m_prev, m_h))
+
         else:
             m_h = Variable(type_constr.FloatTensor(batch_size, self.embedding_size).fill_(0))
         p_h = self.proposal_net(prev_proposal)
+        print('PROPOSAL net: gets {} returns {}'.format(prev_proposal, p_h))
 
         h_t = torch.cat([c_h, m_h, p_h], -1)
         h_t = self.combined_net(h_t)

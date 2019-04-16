@@ -247,9 +247,9 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
         # print('PARAMETERS FOR MODEL:')
         # print(agent_models[i].parameters()) parameters() contains 30 different parameters that are mostly vectors and matricies
         # about parameters and tensors: https://stackoverflow.com/questions/50935345/understanding-torch-nn-parameter
-        for i, p in enumerate(agent_models[i].parameters()):
-            print('parameter {}: {}'.format(i, p.size()))
-        agent_opts.append(optim.Adam(params=agent_models[i].parameters())) # optimizers for agents
+        # for i, p in enumerate(agent_models[i].parameters()):
+        #     print('parameter {}: {}'.format(i, p.size()))
+        agent_opts.append(optim.Adam(params=agent_models[i].parameters()))  # optimizers for agents
         # Adam stochastic optimizer https://arxiv.org/abs/1412.6980
     if path.isfile(model_file) and not no_load:
         episode, start_time = load_model(
