@@ -278,6 +278,7 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
     prop_matches_argmax_count = 0
     prop_stochastic_draws = 0
     while True:
+        print('###### starting episode {}'.format(episode))
         render = time.time() - last_print >= render_every_seconds
         # render = True
         batch = sampling.generate_training_batch(batch_size=batch_size, test_hashes=test_hashes, random_state=train_r)
