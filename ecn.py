@@ -209,7 +209,7 @@ def safe_div(a, b):
 
 def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, batch_size,
         term_entropy_reg, utterance_entropy_reg, proposal_entropy_reg, enable_cuda,
-        no_load, testing, test_seed, render_every_seconds):
+        no_load, testing, test_seed, render_every):
     """
     testing option will:
     - use argmax, ie disable stochastic draws
@@ -228,7 +228,6 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
     test_batches = sampling.generate_test_batches(batch_size=batch_size, num_batches=5, random_state=test_r)
     test_hashes = sampling.hash_batches(test_batches)
 
-    episode = 0
     start_time = time.time()
     agent_models = []
     agent_opts = []
@@ -277,10 +276,10 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
     utt_stochastic_draws = 0
     prop_matches_argmax_count = 0
     prop_stochastic_draws = 0
-    while True:
+    for episode in range(10000):
         print('###### starting episode {}'.format(episode))
-        render = time.time() - last_print >= render_every_seconds
-        # render = True
+        render = episode % render_every == 0
+
         batch = sampling.generate_training_batch(batch_size=batch_size, test_hashes=test_hashes, random_state=train_r)
         actions, rewards, steps, alive_masks, entropy_loss_by_agent, \
             _term_matches_argmax_count, _num_policy_runs, _utt_matches_argmax_count, _utt_stochastic_draws, \
@@ -372,6 +371,8 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
             ))
             f_log.write(json.dumps({
                 'episode': episode,
+                'agent0_reward': rewards_sum[0] / count_sum,
+                'agent1_reward': rewards_sum[1] / count_sum,
                 'avg_reward_0': rewards_sum[2] / count_sum,
                 'test_reward': test_rewards_sum / len(test_batches),
                 'avg_steps': steps_sum / count_sum,
@@ -402,7 +403,6 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
             print('saved model')
             last_save = time.time()
 
-        episode += 1
     f_log.close()
 
 
@@ -418,7 +418,7 @@ if __name__ == '__main__':
     parser.add_argument('--disable-proposal', action='store_true')
     parser.add_argument('--disable-comms', action='store_true')
     parser.add_argument('--disable-prosocial', action='store_true')
-    parser.add_argument('--render-every-seconds', type=int, default=30)
+    parser.add_argument('--render-every', type=int, default=50)
     parser.add_argument('--testing', action='store_true', help='turn off learning; always pick argmax')
     parser.add_argument('--enable-cuda', action='store_true')
     parser.add_argument('--no-load', action='store_true')
