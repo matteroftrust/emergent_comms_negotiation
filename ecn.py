@@ -209,7 +209,7 @@ def safe_div(a, b):
 
 def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, batch_size,
         term_entropy_reg, utterance_entropy_reg, proposal_entropy_reg, enable_cuda,
-        no_load, testing, test_seed, render_every):
+        no_load, testing, test_seed, render_every, episode_num):
     """
     testing option will:
     - use argmax, ie disable stochastic draws
@@ -276,8 +276,8 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
     utt_stochastic_draws = 0
     prop_matches_argmax_count = 0
     prop_stochastic_draws = 0
-    for episode in range(10000):
-        print('###### starting episode {}'.format(episode))
+    for episode in range(episode_num):
+        # print('###### starting episode {}'.format(episode))
         render = episode % render_every == 0
 
         batch = sampling.generate_training_batch(batch_size=batch_size, test_hashes=test_hashes, random_state=train_r)
@@ -424,6 +424,7 @@ if __name__ == '__main__':
     parser.add_argument('--no-load', action='store_true')
     parser.add_argument('--name', type=str, default='', help='used for logfile naming')
     parser.add_argument('--logfile', type=str, default='logs/log_%Y%m%d_%H%M%S{name}.log')
+    parser.add_argument('--episode_num', type=int, default=200000)
     args = parser.parse_args()
     args.enable_comms = not args.disable_comms
     args.enable_proposal = not args.disable_proposal
