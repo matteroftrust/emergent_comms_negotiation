@@ -424,7 +424,7 @@ if __name__ == '__main__':
     parser.add_argument('--no-load', action='store_true')
     parser.add_argument('--name', type=str, default='', help='used for logfile naming')
     parser.add_argument('--logfile', type=str, default='logs/log_%Y%m%d_%H%M%S{name}.log')
-    parser.add_argument('--episode_num', type=int, default=200000)
+    parser.add_argument('--episode-num', type=int, default=200000)
     args = parser.parse_args()
     args.enable_comms = not args.disable_comms
     args.enable_proposal = not args.disable_proposal
