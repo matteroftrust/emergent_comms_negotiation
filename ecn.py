@@ -207,7 +207,7 @@ def safe_div(a, b):
     return 0 if b == 0 else a / b
 
 
-def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, batch_size,
+def run(enable_proposal, enable_comms, memory_comp, seed, prosocial, logfile, model_file, batch_size,
         term_entropy_reg, utterance_entropy_reg, proposal_entropy_reg, enable_cuda,
         no_load, testing, test_seed, render_every, episode_num):
     """
@@ -216,6 +216,7 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
     - not run optimizers
     - not save model
     """
+
     type_constr = torch.cuda if enable_cuda else torch
     if seed is not None:
         np.random.seed(seed)
@@ -337,6 +338,8 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
             run the test batches, print the results
             """
             test_rewards_sum = 0
+            test_rewards_agent_0 = 0
+            test_rewards_agent_1 = 1
             for test_batch in test_batches:
                 actions, test_rewards, steps, alive_masks, entropy_loss_by_agent, \
                     _term_matches_argmax_count, _num_policy_runs, _utt_matches_argmax_count, _utt_stochastic_draws, \
@@ -350,6 +353,9 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
                         render=True,
                         testing=True)
                 test_rewards_sum += test_rewards[:, 2].mean()
+                test_rewards_agent_0 += test_rewards[:, 0].mean()
+                test_rewards_agent_1 += test_rewards[:, 1].mean()
+
             print('test reward=%.3f' % (test_rewards_sum / len(test_batches)))
 
             time_since_last = time.time() - last_print
@@ -371,8 +377,8 @@ def run(enable_proposal, enable_comms, seed, prosocial, logfile, model_file, bat
             ))
             f_log.write(json.dumps({
                 'episode': episode,
-                'agent0_reward': rewards_sum[0] / count_sum,
-                'agent1_reward': rewards_sum[1] / count_sum,
+                'agent0_test_reward': test_rewards_agent_0 / len(test_batches),
+                'agent1_test_reward': test_rewards_agent_0 / len(test_batches),
                 'avg_reward_0': rewards_sum[2] / count_sum,
                 'test_reward': test_rewards_sum / len(test_batches),
                 'avg_steps': steps_sum / count_sum,
@@ -417,6 +423,7 @@ if __name__ == '__main__':
     parser.add_argument('--proposal-entropy-reg', type=float, default=0.05)
     parser.add_argument('--disable-proposal', action='store_true')
     parser.add_argument('--disable-comms', action='store_true')
+    parser.add_argument('--memory-comp', action='store_true', help='turn on additional memory component')
     parser.add_argument('--disable-prosocial', action='store_true')
     parser.add_argument('--render-every', type=int, default=50)
     parser.add_argument('--testing', action='store_true', help='turn off learning; always pick argmax')
