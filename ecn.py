@@ -113,7 +113,7 @@ def run_episode(
     actions_by_timestep = []
     alive_masks = []
 
-    # next two tensofrs wont be sieved, they will stay same size throughout
+    # next two tensors wont be sieved, they will stay same size throughout
     # entire batch, we will update them using sieve.out_idxes[...]
     rewards = type_constr.FloatTensor(batch_size, 3).fill_(0)
     num_steps = type_constr.LongTensor(batch_size).fill_(10)
@@ -238,7 +238,8 @@ def run(enable_proposal, enable_comms, memory_comp, seed, prosocial, logfile, mo
             enable_proposal=enable_proposal,
             term_entropy_reg=term_entropy_reg,
             utterance_entropy_reg=utterance_entropy_reg,
-            proposal_entropy_reg=proposal_entropy_reg
+            proposal_entropy_reg=proposal_entropy_reg,
+            memory_comp=memory_comp
         )
         if enable_cuda:
             model = model.cuda()

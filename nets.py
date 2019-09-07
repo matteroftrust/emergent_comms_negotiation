@@ -34,13 +34,34 @@ class NumberSequenceEncoder(nn.Module):
         return state[0]
 
 
-class CombinedNet(nn.Module):
-    def __init__(self, num_sources=3, embedding_size=100):
+class MemoryNet(nn.Module):
+    def __init__(self, embedding_size=100):
         super().__init__()
-        self.embedding_size = embedding_size
-        self.h1 = nn.Linear(embedding_size * num_sources, embedding_size)
+        self.lstm = torch.nn.LSTMCell(
+            input_size=embedding_size
+        )
 
     def forward(self, x):
+        pass
+
+
+class CombinedNet(nn.Module):
+    def __init__(self, num_sources=3, embedding_size=100, memory_comp=False):
+        super().__init__()
+        self.embedding_size = embedding_size
+        self.memory_comp = memory_comp
+        if memory_comp:
+            self.h1 = torch.nn.LSTMCell(
+                input_size=embedding_size * num_sources,
+                hidden_size=embedding_size
+            )
+        else:
+            self.h1 = nn.Linear(embedding_size * num_sources, embedding_size)
+
+    def forward(self, x):
+        # if self.memory_comp:
+        #     x = self.lstm(x)
+        # else:
         x = self.h1(x)
         x = F.relu(x)
         return x
@@ -189,7 +210,8 @@ class AgentModel(nn.Module):
             term_entropy_reg,
             utterance_entropy_reg,
             proposal_entropy_reg,
-            embedding_size=100):
+            embedding_size=100,
+            memory_comp=False):
         super().__init__()
         self.term_entropy_reg = term_entropy_reg
         self.utterance_entropy_reg = utterance_entropy_reg
@@ -202,7 +224,7 @@ class AgentModel(nn.Module):
         self.proposal_net = NumberSequenceEncoder(num_values=6)
         self.proposal_net.embedding = self.context_net.embedding
 
-        self.combined_net = CombinedNet()
+        self.combined_net = CombinedNet(memory_comp=memory_comp)
 
         self.term_policy = TermPolicy()
         self.utterance_policy = UtterancePolicy()
