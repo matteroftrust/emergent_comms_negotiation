@@ -21,6 +21,7 @@ class NumberSequenceEncoder(nn.Module):
 
     def forward(self, x):
         batch_size = x.size()[0]
+
         seq_len = x.size()[1]
         x = x.transpose(0, 1)
         x = self.embedding(x)
@@ -50,18 +51,27 @@ class CombinedNet(nn.Module):
         super().__init__()
         self.embedding_size = embedding_size
         self.memory_comp = memory_comp
+        self.num_sources = num_sources
         if memory_comp:
-            self.h1 = torch.nn.LSTMCell(
+            self.lstm = torch.nn.LSTMCell(
                 input_size=embedding_size * num_sources,
                 hidden_size=embedding_size
             )
+            self.lstm.zero_state = None  # ? TODO
         else:
             self.h1 = nn.Linear(embedding_size * num_sources, embedding_size)
 
     def forward(self, x):
-        # if self.memory_comp:
-        #     x = self.lstm(x)
-        # else:
+
+        if self.memory_comp:
+            batch_size = x.size()[0]
+            type_constr = torch.cuda if x.is_cuda else torch
+            state = (
+                Variable(type_constr.FloatTensor(batch_size, self.embedding_size).fill_(0)),
+                Variable(type_constr.FloatTensor(batch_size, self.embedding_size).fill_(0))
+            )
+            state = self.lstm(x, state)
+            return state[0]
         x = self.h1(x)
         x = F.relu(x)
         return x
@@ -75,7 +85,6 @@ class TermPolicy(nn.Module):
     def forward(self, thoughtvector, testing, eps=1e-8):
         logits = self.h1(thoughtvector)
         term_probs = F.sigmoid(logits)
-        matches_argmax_count = 0
 
         res_greedy = (term_probs.data >= 0.5).view(-1, 1).float()
 
