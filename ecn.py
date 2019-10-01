@@ -124,6 +124,8 @@ def run_episode(
     prop_matches_argmax_count = 0
     prop_stochastic_draws = 0
 
+    test_symbols_used = []
+
     entropy_loss_by_agent = [
         Variable(type_constr.FloatTensor(1).fill_(0)),
         Variable(type_constr.FloatTensor(1).fill_(0))
@@ -136,6 +138,7 @@ def run_episode(
         agent_model = agent_models[agent]
         if enable_comms:
             _prev_message = s.m_prev
+            test_symbols_used.append(_prev_message[:3].numpy().tolist())
         else:
             # we dont strictly need to blank them, since they'll be all zeros anyway,
             # but defense in depth and all that :)
@@ -195,7 +198,7 @@ def run_episode(
 
     return actions_by_timestep, rewards, num_steps, alive_masks, entropy_loss_by_agent, \
         term_matches_argmax_count, num_policy_runs, utt_matches_argmax_count, utt_stochastic_draws, \
-        prop_matches_argmax_count, prop_stochastic_draws
+        prop_matches_argmax_count, prop_stochastic_draws, test_symbols_used
 
 
 def safe_div(a, b):
@@ -285,7 +288,7 @@ def run(enable_proposal, enable_comms, memory_comp, seed, prosocial, logfile, mo
         batch = sampling.generate_training_batch(batch_size=batch_size, test_hashes=test_hashes, random_state=train_r)
         actions, rewards, steps, alive_masks, entropy_loss_by_agent, \
             _term_matches_argmax_count, _num_policy_runs, _utt_matches_argmax_count, _utt_stochastic_draws, \
-            _prop_matches_argmax_count, _prop_stochastic_draws = run_episode(
+            _prop_matches_argmax_count, _prop_stochastic_draws, test_symbols_used = run_episode(
                 batch=batch,
                 enable_cuda=enable_cuda,
                 enable_comms=enable_comms,
@@ -344,7 +347,7 @@ def run(enable_proposal, enable_comms, memory_comp, seed, prosocial, logfile, mo
             for test_batch in test_batches:
                 actions, test_rewards, steps, alive_masks, entropy_loss_by_agent, \
                     _term_matches_argmax_count, _num_policy_runs, _utt_matches_argmax_count, _utt_stochastic_draws, \
-                    _prop_matches_argmax_count, _prop_stochastic_draws = run_episode(
+                    _prop_matches_argmax_count, _prop_stochastic_draws, test_symbols_used = run_episode(
                         batch=test_batch,
                         enable_cuda=enable_cuda,
                         enable_comms=enable_comms,
@@ -385,6 +388,7 @@ def run(enable_proposal, enable_comms, memory_comp, seed, prosocial, logfile, mo
                 'avg_steps': steps_sum / count_sum,
                 'games_sec': count_sum / time_since_last,
                 'elapsed': time.time() - start_time,
+                'test_symbols_used': test_symbols_used,
                 'argmaxp_term': (term_matches_argmax_count / num_policy_runs),
                 'argmaxp_utt': safe_div(utt_matches_argmax_count, utt_stochastic_draws),
                 'argmaxp_prop': (prop_matches_argmax_count / prop_stochastic_draws)
