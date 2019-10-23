@@ -138,6 +138,8 @@ def run_episode(
         agent_model = agent_models[agent]
         if enable_comms:
             _prev_message = s.m_prev
+            if enable_cuda:
+                _prev_message = _prev_message.cpu()
             test_symbols_used.append(_prev_message[:3].numpy().tolist())
         else:
             # we dont strictly need to blank them, since they'll be all zeros anyway,
