@@ -140,7 +140,7 @@ def run_episode(
             _prev_message = s.m_prev
             if enable_cuda:
                 _prev_message = _prev_message.cpu()
-            test_symbols_used.append(_prev_message[:3].numpy().tolist())
+            test_symbols_used.append(_prev_message.numpy().tolist())
         else:
             # we dont strictly need to blank them, since they'll be all zeros anyway,
             # but defense in depth and all that :)
