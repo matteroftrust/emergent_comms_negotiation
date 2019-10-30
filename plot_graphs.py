@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 
 
-def plot_reward(logfile, min_y, max_y, title, max_x):
+def plot_reward(logfile, min_y, max_y, title, max_x, labels=None):
     """
     logfiles separated by : are combined
     logfiles separated by , go in separate plots
@@ -15,6 +15,9 @@ def plot_reward(logfile, min_y, max_y, title, max_x):
     """
     logfiles = logfile
     split_logfiles = logfiles.split(',')
+    if labels:
+        labels = labels.split(',')
+
     for j, logfile_groups in enumerate(split_logfiles):
         epoch = []
         reward = []
@@ -35,7 +38,7 @@ def plot_reward(logfile, min_y, max_y, title, max_x):
                     reward.append(float(d['avg_reward_0']))
                     if 'test_reward' in d:
                         test_reward.append(d['test_reward'])
-        print('epoch[0]', epoch[0], 'epochs[-1]', epoch[-1])
+        # print('epoch[0]', epoch[0], 'epochs[-1]', epoch[-1])
         while len(epoch) > 200:
             new_epoch = []
             new_reward = []
@@ -51,7 +54,7 @@ def plot_reward(logfile, min_y, max_y, title, max_x):
             epoch = new_epoch
             reward = new_reward
             test_reward = new_test_reward
-        print('epoch[0]', epoch[0], 'epochs[-1]', epoch[-1])
+        # print('epoch[0]', epoch[0], 'epochs[-1]', epoch[-1])
         if min_y is None:
             min_y = 0
         if max_y is not None:
@@ -60,8 +63,9 @@ def plot_reward(logfile, min_y, max_y, title, max_x):
         if len(split_logfiles) > 0:
             suffix = ' %s' % (j + 1)
         if len(test_reward) > 0:
-            plt.plot(np.array(epoch) / 1000, reward, label='train' + suffix)
-            plt.plot(np.array(epoch) / 1000, test_reward, label='test' + suffix)
+            label = labels[j] + ' ' if labels else ''
+            plt.plot(np.array(epoch) / 1000, reward, label=label + 'train' + suffix)
+            plt.plot(np.array(epoch) / 1000, test_reward, label=label + 'test' + suffix)
         else:
             plt.plot(np.array(epoch) / 1000, reward, label='reward' + suffix)
     if title is not None:
