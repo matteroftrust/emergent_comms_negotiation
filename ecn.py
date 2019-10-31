@@ -384,7 +384,7 @@ def run(enable_proposal, enable_comms, memory_comp, seed, prosocial, logfile, mo
             f_log.write(json.dumps({
                 'episode': episode,
                 'agent0_test_reward': test_rewards_agent_0 / len(test_batches),
-                'agent1_test_reward': test_rewards_agent_0 / len(test_batches),
+                'agent1_test_reward': test_rewards_agent_1 / len(test_batches),
                 'avg_reward_0': rewards_sum[2] / count_sum,
                 'test_reward': test_rewards_sum / len(test_batches),
                 'avg_steps': steps_sum / count_sum,
