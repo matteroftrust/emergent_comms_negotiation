@@ -420,7 +420,6 @@ def run(enable_proposal, enable_comms, memory_comp, seed, prosocial, logfile, mo
 
 
 if __name__ == '__main__':
-    print('starting')
     parser = argparse.ArgumentParser()
     parser.add_argument('--model-file', type=str, default='model_saves/model.dat')
     parser.add_argument('--batch-size', type=int, default=128)

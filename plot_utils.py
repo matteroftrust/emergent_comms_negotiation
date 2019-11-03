@@ -106,3 +106,11 @@ def get_x_positions(inner_no, outer_no, width=2, inner_width=0.2, outer_width=0.
         last += width + outer_width
         positions.append(np.array(inner_positions))
     return np.array(positions)
+
+
+def order_lists(arr1, arr2):
+    idx = np.argsort(arr1)[::-1]
+    arr1 = np.array(arr1)[idx]
+    arr2 = np.array(arr2)[idx]
+
+    return arr1, arr2
