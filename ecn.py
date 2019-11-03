@@ -115,7 +115,7 @@ def run_episode(
 
     # next two tensors wont be sieved, they will stay same size throughout
     # entire batch, we will update them using sieve.out_idxes[...]
-    rewards = type_constr.FloatTensor(batch_size, 3).fill_(0)
+    rewards = type_constr.FloatTensor(batch_size, 3).fill_(0)  # if testing=True this is test
     num_steps = type_constr.LongTensor(batch_size).fill_(10)
     term_matches_argmax_count = 0
     utt_matches_argmax_count = 0
@@ -420,6 +420,7 @@ def run(enable_proposal, enable_comms, memory_comp, seed, prosocial, logfile, mo
 
 
 if __name__ == '__main__':
+    print('starting')
     parser = argparse.ArgumentParser()
     parser.add_argument('--model-file', type=str, default='model_saves/model.dat')
     parser.add_argument('--batch-size', type=int, default=128)
