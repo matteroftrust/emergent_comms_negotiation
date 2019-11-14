@@ -105,4 +105,8 @@ merge.yaml
 merge.sh
 
 # other
-/.DS_store
+*.DS_store
+/figs
+/downloaded
+nohup.out
+*.png
