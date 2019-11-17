@@ -138,7 +138,6 @@ def plot_reward(logfile, min_y, max_y, title, max_x, labels=None, output_file=No
             with open(logfile, 'r') as f:
                 for n, line in enumerate(f):
                     if n == 0:
-                        print(logfile, line)
                         continue  # skip first line
                     line = line.strip()
                     if line == '':
