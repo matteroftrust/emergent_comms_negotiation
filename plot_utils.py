@@ -74,18 +74,26 @@ def extract_utterance(filename):
 
 def get_distributions(messages, n=3, msg_len=6, vocab_size=10):
     distributions = []
+    messages_count = []
+
     for i in range(n):
+
         messages_in_position = messages[i]
+        messages_count.append(len(messages_in_position))
         messages_in_position = np.array([np.array(msg) for msg in messages_in_position])
         msg_distribution = [[0 for _ in range(vocab_size)] for _ in range(msg_len)]
         for position in range(msg_len):
-            unique, counts = np.unique(messages_in_position[:, position], return_counts=True)
+            # there is a bug here if msg_in_position == []
+            msg_in_position = messages_in_position[:, position]
+            unique, counts = np.unique(msg_in_position, return_counts=True)
+            # unique, counts = np.unique(messages_in_position[:, position], return_counts=True)
             for u, c in zip(unique, counts):
                 msg_distribution[position][u] = c
         distributions.append(msg_distribution)
 
     distributions = np.array(distributions)
-    return distributions
+    print('msg in position', messages_in_position.shape)
+    return distributions, messages_count
 
 
 def get_x_positions(inner_no, outer_no, width=2, inner_width=0.2, outer_width=0.5):
